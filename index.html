@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام كاشير المخابز الفاخر - POS</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --pos-dark: #0f0f14;
+            --pos-sidebar: rgba(17, 17, 25, 0.85);
+            --pos-accent: #e59866; 
+            --pos-success: #2ecc71;
+            --pos-danger: #e74c3c;
+            --pos-warning: #f1c40f;
+            --pos-share: #0076bd; 
+            --text-light: #f5f5f7;
+            --text-muted: #a1a5b7;
+            --card-bg: rgba(43, 43, 64, 0.65);
+            --modal-bg: rgba(10, 10, 15, 0.95);
+            --status-bar-bg: rgba(13, 13, 20, 0.95);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(rgba(15, 15, 20, 0.88), rgba(15, 15, 20, 0.92)), 
+                        url('https://images.unsplash.com/photo-1509440159596-0249088772ff?q=80&w=1000&auto=format&fit=crop') center/cover no-repeat;
+            color: var(--text-light);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* ==================== ✨ شاشة البصمة الموزونة (٣ ثوانٍ) ✨ ==================== */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a1a26 0%, #09090d 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100000;
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.5s;
+        }
+
+        .splash-content {
+            text-align: center;
+            animation: fadeInUp 0.8s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .splash-logo {
+            font-size: 70px;
+            color: var(--pos-accent);
+            margin-bottom: 25px;
+            display: inline-block;
+            filter: drop-shadow(0 0 25px rgba(229, 152, 102, 0.6));
+            animation: pulseGlow 2s infinite ease-in-out alternate;
+        }
+
+        .splash-text {
+            font-size: 15px;
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            font-weight: 400;
+            opacity: 0;
+            animation: fadeInText 0.6s 0.3s ease forwards;
+            margin-bottom: 30px;
+        }
+
+        .splash-text span {
+            color: #ffffff;
+            font-weight: 700;
+            margin-right: 5px;
+            border-bottom: 2px solid var(--pos-accent);
+            padding-bottom: 3px;
+            text-shadow: 0 0 15px rgba(229, 152, 102, 0.5);
+        }
+
+        .progress-container {
+            width: 180px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            overflow: hidden;
+            opacity: 0;
+            animation: fadeInText 0.6s 0.4s ease forwards;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e59866, #ffb380);
+            box-shadow: 0 0 12px rgba(229, 152, 102, 0.8);
+            border-radius: 10px;
+            /* ⏱️ تم ضبط حركة الشريط لتكتمل في ٣ ثوانٍ بنعومة */
+            transition: width 3s linear; 
+        }
+
+        @keyframes fadeInUp {
+            0% { transform: translateY(30px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeInText {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        @keyframes pulseGlow {
+            0% { transform: scale(0.95); filter: drop-shadow(0 0 15px rgba(229, 152, 102, 0.4)); }
+            100% { transform: scale(1.03); filter: drop-shadow(0 0 30px rgba(229, 152, 102, 0.7)); }
+        }
+
+        /* ==================== 📲 باقي عناصر الواجهة ==================== */
+        header {
+            background-color: var(--pos-sidebar);
+            backdrop-filter: blur(10px);
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+
+        header h1 {
+            font-size: 18px;
+            margin: 0;
+            color: var(--pos-accent);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-stats { display: flex; gap: 15px; }
+        .stat-badge { background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(5px); padding: 6px 14px; border-radius: 10px; font-size: 13px; border: 1px solid rgba(255, 255, 255, 0.08); }
+
+        .pos-container { display: flex; flex: 1; overflow: hidden; }
+        .items-section { flex: 1.2; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 25px; }
+
+        .category-title { font-size: 14px; font-weight: 700; color: var(--text-muted); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 8px; }
+        .quick-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); gap: 15px; }
+
+        .pos-btn { background: linear-gradient(145deg, rgba(40, 40, 55, 0.7), rgba(25, 25, 35, 0.7)); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px 10px; text-align: center; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
+        .pos-btn:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.15); }
+        .pos-btn i { font-size: 26px; display: block; margin-bottom: 10px; }
+        .cash-in-btn i { color: var(--pos-success); }
+        .cash-out-btn i { color: var(--pos-danger); }
+        .bread-btn i { color: var(--pos-warning); }
+
+        .checkout-section { flex: 1; background-color: var(--pos-sidebar); backdrop-filter: blur(15px); border-right: 1px solid rgba(255, 255, 255, 0.05); display: flex; flex-direction: column; box-shadow: -5px 0 25px rgba(0,0,0,0.15); overflow: hidden; }
+        .pos-display { background-color: rgba(10, 10, 15, 0.85); padding: 15px 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .pos-display .operation-target { font-size: 13px; color: var(--pos-accent); text-align: right; min-height: 20px; }
+        .pos-display .current-value { font-size: 36px; font-weight: bold; color: #ff9f43; font-family: monospace; }
+
+        .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 15px; background: rgba(0,0,0,0.2); }
+        .num-btn { background: linear-gradient(135deg, rgba(60, 60, 85, 0.5), rgba(35, 35, 50, 0.5)); border: 1px solid rgba(255, 255, 255, 0.05); color: white; font-size: 20px; font-weight: 600; padding: 12px; border-radius: 12px; cursor: pointer; }
+        .num-btn.action { background: rgba(255, 255, 255, 0.07); color: var(--text-muted); }
+        .num-btn.confirm { background: linear-gradient(90deg, #009ef7, #0076bd); grid-column: span 3; font-size: 15px; margin-top: 4px; border: none; }
+        .num-btn.reset-btn { background: linear-gradient(90deg, #f1416c, #d91c4b); grid-column: span 3; font-size: 13px; padding: 10px; margin-top: 4px; border: none; }
+
+        .invoice-table-wrapper { flex: 1; overflow-y: auto; padding: 12px; min-height: 200px; }
+        .pos-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .pos-table th { background-color: rgba(10, 10, 15, 0.4); color: var(--text-muted); text-align: right; padding: 10px 8px; position: sticky; top: 0; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .pos-table td { padding: 10px 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+
+        .type-badge { padding: 3px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
+        .type-badge.in { background: rgba(46, 204, 113, 0.15); color: #2ecc71; }
+        .type-badge.out { background: rgba(231, 76, 60, 0.15); color: #e74c3c; }
+
+        .status-bar { background-color: var(--status-bar-bg); backdrop-filter: blur(10px); color: var(--text-muted); font-size: 11px; padding: 10px 20px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255, 255, 255, 0.05); box-shadow: 0 -4px 20px rgba(0,0,0,0.3); }
+        .status-right .dev-credit span { color: white; font-weight: 600; }
+        .system-pulse { display: flex; align-items: center; gap: 6px; color: var(--pos-success); }
+        .pulse-dot { width: 6px; height: 6px; background-color: var(--pos-success); border-radius: 50%; animation: blink 1.5s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        .modal-overlay.active { opacity: 1; pointer-events: auto; }
+        .custom-modal { background: linear-gradient(145deg, #242435, #161622); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; width: 90%; max-width: 400px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+        .modal-header { font-size: 16px; font-weight: bold; color: var(--pos-accent); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+        .modal-body { margin-bottom: 20px; }
+        .modal-input { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: white; font-size: 15px; box-sizing: border-box; margin-bottom: 15px; }
+        
+        .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+        .modal-buttons-row { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
+        .modal-btn.save { background: var(--pos-accent); color: #000; }
+        .modal-btn.cancel { background: rgba(255,255,255,0.08); color: var(--text-muted); }
+        .modal-btn.share { background: var(--pos-share); color: #fff; width: 100%; margin-bottom: 5px; box-shadow: 0 4px 12px rgba(0, 118, 189, 0.2); }
+        
+        .report-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 15px; }
+        .report-warning { color: var(--pos-danger); font-size: 12px; margin-top: 15px; text-align: center; background: rgba(231, 76, 60, 0.1); padding: 8px; border-radius: 8px; }
+
+        .toast-notification {
+            position: fixed;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2ecc71;
+            color: #fff;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            z-index: 100000;
+            transition: top 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toast-notification.show { top: 20px; }
+
+        @media (max-width: 768px) {
+            body { overflow-y: auto; height: auto; }
+            .pos-container { flex-direction: column; height: auto; overflow: visible; }
+            .items-section { overflow-y: visible; padding: 15px; }
+            .checkout-section { border-right: none; border-top: 1px solid rgba(255, 255, 255, 0.05); height: auto; overflow: visible; }
+            .invoice-table-wrapper { overflow-y: visible; min-height: auto; padding-bottom: 20px; }
+            .status-bar { flex-direction: column; gap: 8px; text-align: center; padding: 15px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="toastNotif" class="toast-notification">
+        <i class="fa-solid fa-circle-check"></i> تم نسخ التقرير! افتح الواتساب والصقه الآن.
+    </div>
+
+    <div id="splashScreen">
+        <div class="splash-content">
+            <div class="splash-logo"><i class="fa-solid fa-cookie-bite"></i></div>
+            <div class="splash-text">هندسة وتطوير النظام: <span>علي حسن علي</span></div>
+            <div class="progress-container">
+                <div id="splashProgressBar" class="progress-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <h1><i class="fa-solid fa-cash-register"></i> نظام كاشير المخابز الاحترافي</h1>
+        <div class="live-stats">
+            <div class="stat-badge">الخزينة: <span id="netCash" style="color: #2ecc71; font-weight: bold;">0 ج.م</span></div>
+            <div class="stat-badge">رصيد العيش: <span id="netBread" style="color: #f1c40f; font-weight: bold;">0 رغيف</span></div>
+        </div>
+    </header>
+
+    <div class="pos-container">
+        <div class="items-section">
+            <div>
+                <div class="category-title"><i class="fa-solid fa-arrow-down-long" style="color: var(--pos-success)"></i> إستلام كاش   (+ الكاش)</div>
+                <div class="quick-grid">
+                    <div class="pos-btn cash-in-btn" onclick="openCustomModal('إيراد الوردية', 'cash_in')"><i class="fa-solid fa-store"></i><span>إيراد الوردية</span></div>
+                    <div class="pos-btn cash-in-btn" onclick="openCustomModal('تحصيل من تجار', 'cash_in')"><i class="fa-solid fa-wallet"></i><span>تحصيل تجار</span></div>
+                    <div class="pos-btn cash-in-btn" onclick="openCustomModal('إستلام فكة', 'cash_in')"><i class="fa-solid fa-coins"></i><span>إستلام فكة</span></div>
+                    <div class="pos-btn cash-in-btn" onclick="openCustomModal('إيراد آخر', 'cash_in')"><i class="fa-solid fa-circle-plus"></i><span>إيراد آخر</span></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="category-title"><i class="fa-solid fa-arrow-up-long" style="color: var(--pos-danger)"></i> منصرف كاش   (- الكاش)</div>
+                <div class="quick-grid">
+                    <div class="pos-btn cash-out-btn" onclick="openCustomModal('سلفيات عمال', 'cash_out')"><i class="fa-solid fa-user-gear"></i><span>سلفيات عمال</span></div>
+                    <div class="pos-btn cash-out-btn" onclick="openCustomModal('شراء خامات / دقيق', 'cash_out')"><i class="fa-solid fa-truck"></i><span>خامات ودقيق</span></div>
+                    <div class="pos-btn cash-out-btn" onclick="openCustomModal('نثريات ومصاريف تشغيل', 'cash_out')"><i class="fa-solid fa-wrench"></i><span>مصاريف تشغيل</span></div>
+                    <div class="pos-btn cash-out-btn" onclick="openCustomModal('وجبات وفطور عمال', 'cash_out')"><i class="fa-solid fa-bowl-food"></i><span>فطور ووجبات</span></div>
+                    <div class="pos-btn cash-out-btn" onclick="openCustomModal('مسحوبات مالك المخبز', 'cash_out')"><i class="fa-solid fa-user-tie"></i><span>مسحوبات المالك</span></div>
+                </div>
+            </div>
+
+            <div>
+                <div class="category-title"><i class="fa-solid fa-wheat-awn" style="color: var(--pos-warning)"></i> حركة كميات العيش (بالعدد)</div>
+                <div class="quick-grid">
+                    <div class="pos-btn bread-btn" onclick="openCustomModal('إجمالي إنتاج الوردية', 'bread_in')"><i class="fa-solid fa-boxes-stacked"></i><span>إنتاج الوردية</span></div>
+                    <div class="pos-btn bread-btn" onclick="openCustomModal('توزيع لتجار / موزعون', 'bread_out')"><i class="fa-solid fa-truck-ramp-box"></i><span>توزيع لتجار</span></div>
+                    <div class="pos-btn bread-btn" onclick="openCustomModal('مبيعات مباشرة للمستهلك', 'bread_out')"><i class="fa-solid fa-shop"></i><span>بيع للمستهلك</span></div>
+                    <div class="pos-btn bread-btn" onclick="openCustomModal('هالك وتالف ورابع', 'bread_out')"><i class="fa-solid fa-trash-arrow-up"></i><span>تالف وراجع </span></div>
+                    <div class="pos-btn bread-btn" onclick="openCustomModal('وجبات عمال (عيش)', 'bread_out')"><i class="fa-solid fa-bread-slice"></i><span>وجبات عمال</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="checkout-section">
+            <div class="pos-display">
+                <div class="operation-target" id="posTarget">اختر تصنيفاً للبدء...</div>
+                <div class="current-value" id="posValue">0</div>
+            </div>
+
+            <div class="numpad">
+                <button class="num-btn" onclick="pressNum('1')">1</button>
+                <button class="num-btn" onclick="pressNum('2')">2</button>
+                <button class="num-btn" onclick="pressNum('3')">3</button>
+                <button class="num-btn" onclick="pressNum('4')">4</button>
+                <button class="num-btn" onclick="pressNum('5')">5</button>
+                <button class="num-btn" onclick="pressNum('6')">6</button>
+                <button class="num-btn" onclick="pressNum('7')">7</button>
+                <button class="num-btn" onclick="pressNum('8')">8</button>
+                <button class="num-btn" onclick="pressNum('9')">9</button>
+                <button class="num-btn action" onclick="pressNum('0')">0</button>
+                <button class="num-btn action" onclick="pressNum('00')">00</button>
+                <button class="num-btn action" onclick="clearDisplay()"><i class="fa-solid fa-delete-left"></i></button>
+                <button class="num-btn confirm" onclick="submitTransaction()"><i class="fa-solid fa-circle-check"></i> حفظ العملية</button>
+                <button class="num-btn reset-btn" onclick="openReportModal()"><i class="fa-solid fa-power-off"></i> جرد وتصفير الوردية</button>
+            </div>
+
+            <div class="invoice-table-wrapper">
+                <table class="pos-table">
+                    <thead>
+                        <tr>
+                            <th>التصنيف (التفاصيل)</th>
+                            <th>النوع</th>
+                            <th>القيمة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="posLogTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-right">
+            <div class="dev-credit"><i class="fa-solid fa-code"></i> تصميم وتطوير الهيكل: <span>علي حسن علي</span></div>
+        </div>
+        <div class="status-left">
+            <div class="system-pulse"><div class="pulse-dot"></div> الملقم المحلي نشط</div>
+            <div>إصدار النظام: <span>v2.5.0</span></div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="custom-modal">
+            <div class="modal-header"><i class="fa-solid fa-pen-to-square"></i> <span id="modalTitle">تفاصيل العملية</span></div>
+            <div class="modal-body">
+                <div id="breadCalcFields" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size:12px; color:var(--text-muted)">عدد الطاولات</label>
+                            <input type="number" id="modalBoxCount" class="modal-input" placeholder="مثال: 20" oninput="autoCalculateBread()">
+                        </div>
+                        <div>
+                            <label style="font-size:12px; color:var(--text-muted)">رغيف بالطاولة</label>
+                            <input type="number" id="modalBoxSize" class="modal-input" value="30" oninput="autoCalculateBread()">
+                        </div>
+                    </div>
+                    <label style="font-size:12px; color:var(--text-muted)">رغيف فكة / زيادة (+)</label>
+                    <input type="number" id="modalExtraBread" class="modal-input" value="0" oninput="autoCalculateBread()">
+                </div>
+                <label id="inputLabel" style="font-size:12px; color:var(--text-muted)">تفاصيل إضافية (الاسم أو البيان):</label>
+                <input type="text" class="modal-input" id="modalCustomDetails" placeholder="مثال: اسم العامل، اسم التاجر...">
+            </div>
+            <div class="modal-actions">
+                <div class="modal-buttons-row">
+                    <button class="modal-btn cancel" onclick="closeCustomModal()">إلغاء</button>
+                    <button class="modal-btn save" onclick="saveCustomModalData()">متابعة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="reportModalOverlay">
+        <div class="custom-modal">
+            <div class="modal-header" style="color: var(--pos-danger);"><i class="fa-solid fa-file-invoice-dollar"></i> تقرير إغلاق الوردية المالي</div>
+            <div class="modal-body">
+                <div class="report-item">
+                    <span>💰 صافي النقدية (الدرج):</span>
+                    <span id="reportCash" style="color: var(--pos-success); font-weight: bold;">0 ج.م</span>
+                </div>
+                <div class="report-item">
+                    <span>🍞 رصيد العيش المتبقي:</span>
+                    <span id="reportBread" style="color: var(--pos-warning); font-weight: bold;">0 رغيف</span>
+                </div>
+                <div class="report-warning">
+                    <i class="fa-solid fa-triangle-exclamation"></i> تنبيه: سيتم مسح الجدول وتصفير العدادات لبدء وردية جديدة.
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn share" onclick="copyAndOpenWhatsApp()">
+                    <i class="fa-solid fa-copy"></i> نسخ التقرير المطور والانتقال للواتساب
+                </button>
+                <div class="modal-buttons-row" style="width: 100%;">
+                    <button class="modal-btn cancel" style="flex:1" onclick="closeReportModal()">إلغاء</button>
+                    <button class="modal-btn save" style="background: var(--pos-danger); color: white; flex:2" onclick="confirmZeroing()">تأكيد التصفير</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+    let totals = { cash: 0, bread: 0 };
+    let currentOperation = { category: '', details: '', type: '' };
+    let currentValueStr = '0';
+
+    window.addEventListener('DOMContentLoaded', () => {
+        // شريط التحميل يبدأ فوراً
+        setTimeout(() => {
+            const progressBar = document.getElementById('splashProgressBar');
+            if(progressBar) {
+                progressBar.style.width = '100%';
+            }
+        }, 100);
+
+        // ⏱️ الإخفاء بدقة بعد 3000 مللي ثانية (٣ ثوانٍ)
+        setTimeout(() => {
+            const splash = document.getElementById('splashScreen');
+            if(splash) {
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+            }
+        }, 3000); 
+        
+        loadFromLocalStorage();
+    });
+
+    function openCustomModal(category, type) {
+        currentOperation.category = category;
+        currentOperation.type = type;
+        document.getElementById('modalTitle').innerText = `[ ${category} ]`;
+        document.getElementById('modalCustomDetails').value = '';
+        document.getElementById('modalBoxCount').value = '';
+        document.getElementById('modalExtraBread').value = '0';
+        
+        if (category === 'إجمالي إنتاج الوردية' || category === 'توزيع لتجار / موزعون') {
+            document.getElementById('breadCalcFields').style.display = 'block';
+        } else {
+            document.getElementById('breadCalcFields').style.display = 'none';
+        }
+        document.getElementById('modalOverlay').classList.add('active');
+    }
+
+    function autoCalculateBread() {
+        const tables = parseFloat(document.getElementById('modalBoxCount').value) || 0;
+        const size = parseFloat(document.getElementById('modalBoxSize').value) || 0;
+        const extra = parseFloat(document.getElementById('modalExtraBread').value) || 0;
+        if (tables > 0) {
+            currentValueStr = ((tables * size) + extra).toString();
+            updateDisplay();
+        }
+    }
+
+    function closeCustomModal() { document.getElementById('modalOverlay').classList.remove('active'); }
+
+    function saveCustomModalData() {
+        let details = document.getElementById('modalCustomDetails').value.trim();
+        currentOperation.details = details;
+        document.getElementById('posTarget').innerText = currentOperation.category + (details ? ` (${details})` : '');
+        closeCustomModal();
+    }
+
+    function pressNum(num) {
+        if (!currentOperation.type) { alert('برجاء اختيار التصنيف أولاً!'); return; }
+        currentValueStr = (currentValueStr === '0') ? num : currentValueStr + num;
+        updateDisplay();
+    }
+
+    function clearDisplay() { currentValueStr = '0'; updateDisplay(); }
+    function updateDisplay() { document.getElementById('posValue').innerText = currentValueStr; }
+
+    function submitTransaction() {
+        const value = parseFloat(currentValueStr) || 0;
+        if (value <= 0) { alert('أدخل قيمة صحيحة'); return; }
+        
+        let unit = '', badgeClass = '';
+        if (currentOperation.type === 'cash_in') { totals.cash += value; unit = 'ج.م'; badgeClass = 'in'; }
+        else if (currentOperation.type === 'cash_out') { totals.cash -= value; unit = 'ج.م'; badgeClass = 'out'; }
+        else if (currentOperation.type === 'bread_in') { totals.bread += value; unit = 'رغيف'; badgeClass = 'in'; }
+        else if (currentOperation.type === 'bread_out') { totals.bread -= value; unit = 'رغيف'; badgeClass = 'out'; }
+
+        updateUI();
+
+        const tableBody = document.getElementById('posLogTable');
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td><strong>${currentOperation.category} ${currentOperation.details ? ` - ${currentOperation.details}` : ''}</strong></td>
+            <td><span class="type-badge ${badgeClass}">${currentOperation.type.includes('in') ? 'إستلاف' : 'منصرف'}</span></td>
+            <td style="font-weight:bold; color:${badgeClass==='in'?'#2ecc71':'#e74c3c'}">${value} ${unit}</td>
+        `;
+        tableBody.insertBefore(row, tableBody.firstChild);
+        saveToLocalStorage();
+        clearDisplay();
+    }
+
+    function openReportModal() {
+        document.getElementById('reportCash').innerText = `${totals.cash} ج.م`;
+        document.getElementById('reportBread').innerText = `${totals.bread} رغيف`;
+        document.getElementById('reportModalOverlay').classList.add('active');
+    }
+
+    function closeReportModal() { document.getElementById('reportModalOverlay').classList.remove('active'); }
+
+    function copyAndOpenWhatsApp() {
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('ar-EG');
+        const timeStr = now.toLocaleTimeString('ar-EG');
+
+        const reportText = `✨ *نظام إدارة المخابز الذكي* ✨\n` +
+                           `📋 *تقرير الحسابات المالي والإنتاجي* 📋\n\n` +
+                           `⏱️ *الوقت:* ${timeStr}\n` +
+                           `📅 *التاريخ:* ${dateStr}\n` +
+                           `━━━━━━━━━━━━━━━━━━━\n\n` +
+                           `💵 *الأموال والنقدية الحالية:* \n` +
+                           ` 👤 *صافي درج الكاشير:* ${totals.cash} ج.م\n\n` +
+                           `🥖 *حركة مخزون الإنتاج:* \n` +
+                           ` 👤 *الرصيد المتبقي:* ${totals.bread} رغيف\n\n` +
+                           `━━━━━━━━━━━━━━━━━━━\n` +
+                           `⚙️ *حالة الوردية:* تم الإغلاق والتصفير بنجاح وبدء دورة جديدة الشغل. 🚀`;
+
+        const tempTextArea = document.createElement('textarea');
+        tempTextArea.value = reportText;
+        document.body.appendChild(tempTextArea);
+        tempTextArea.select();
+        tempTextArea.setSelectionRange(0, 99999);
+        
+        try {
+            document.execCommand('copy');
+            
+            const toast = document.getElementById('toastNotif');
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+
+            setTimeout(() => {
+                window.open('https://web.whatsapp.com/', '_blank');
+            }, 800);
+
+        } catch (err) {
+            alert('حدث خطأ أثناء النسخ، يرجى المحاولة مرة أخرى.');
+        } finally {
+            document.body.removeChild(tempTextArea);
+        }
+    }
+
+    function confirmZeroing() {
+        totals.cash = 0;
+        totals.bread = 0;
+        document.getElementById('posLogTable').innerHTML = '';
+        document.getElementById('posTarget').innerText = 'اختر تصنيفاً للبدء...';
+        currentOperation = { category: '', details: '', type: '' };
+        
+        updateUI();
+        saveToLocalStorage();
+        clearDisplay();
+        closeReportModal();
+        alert('تم تصفير الوردية بنجاح وبدء دورة جديدة! 🚀');
+    }
+
+    function updateUI() {
+        document.getElementById('netCash').innerText = `${totals.cash} ج.م`;
+        document.getElementById('netBread').innerText = `${totals.bread} رغيف`;
+    }
+
+    function saveToLocalStorage() {
+        localStorage.setItem('generic_bakery_totals', JSON.stringify(totals));
+        localStorage.setItem('generic_bakery_logs', document.getElementById('posLogTable').innerHTML);
+    }
+
+    function loadFromLocalStorage() {
+        const savedTotals = localStorage.getItem('generic_bakery_totals');
+        const savedLogs = localStorage.getItem('generic_bakery_logs');
+        if (savedTotals) { totals = JSON.parse(savedTotals); updateUI(); }
+        if (savedLogs) { document.getElementById('posLogTable').innerHTML = savedLogs; }
+    }
+</script>
+</body>
+</html>
