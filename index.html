@@ -34,7 +34,7 @@
             overflow-x: hidden;
         }
 
-        /* ==================== ✨ شاشة البصمة الموزونة (٣ ثوانٍ) ✨ ==================== */
+        /* ==================== ✨ شاشة البصمة الموزونة ✨ ==================== */
         #splashScreen {
             position: fixed;
             top: 0;
@@ -102,7 +102,6 @@
             background: linear-gradient(90deg, #e59866, #ffb380);
             box-shadow: 0 0 12px rgba(229, 152, 102, 0.8);
             border-radius: 10px;
-            /* ⏱️ تم ضبط حركة الشريط لتكتمل في ٣ ثوانٍ بنعومة */
             transition: width 3s linear; 
         }
 
@@ -166,8 +165,45 @@
         .numpad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 15px; background: rgba(0,0,0,0.2); }
         .num-btn { background: linear-gradient(135deg, rgba(60, 60, 85, 0.5), rgba(35, 35, 50, 0.5)); border: 1px solid rgba(255, 255, 255, 0.05); color: white; font-size: 20px; font-weight: 600; padding: 12px; border-radius: 12px; cursor: pointer; }
         .num-btn.action { background: rgba(255, 255, 255, 0.07); color: var(--text-muted); }
-        .num-btn.confirm { background: linear-gradient(90deg, #009ef7, #0076bd); grid-column: span 3; font-size: 15px; margin-top: 4px; border: none; }
-        .num-btn.reset-btn { background: linear-gradient(90deg, #f1416c, #d91c4b); grid-column: span 3; font-size: 13px; padding: 10px; margin-top: 4px; border: none; }
+
+        /* ==================== 🎨 قسم الأزرار الثلاثة الرئيسية 🎨 ==================== */
+        .action-button-container {
+            grid-column: span 3;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 5px;
+            width: 100%;
+        }
+
+        .main-action-btn {
+            width: 100%;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-sizing: border-box;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .main-action-btn:active { transform: scale(0.98); }
+
+        .main-action-btn.btn-confirm { background: linear-gradient(90deg, #009ef7, #0076bd); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .main-action-btn.btn-confirm:hover { box-shadow: 0 0 15px rgba(0, 158, 247, 0.4); border-color: #009ef7; }
+
+        .main-action-btn.btn-reset { background: linear-gradient(90deg, #f1416c, #d91c4b); text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+        .main-action-btn.btn-reset:hover { box-shadow: 0 0 15px rgba(241, 65, 108, 0.4); border-color: #f1416c; }
+
+        .main-action-btn.btn-history { background: linear-gradient(135deg, #4a3300 0%, #8a640f 50%, #ad841f 100%); border: 1px solid #ffd700; text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7); }
+        .main-action-btn.btn-history:hover { box-shadow: 0 4px 15px rgba(218, 165, 32, 0.4); background: linear-gradient(135deg, #533b05 0%, #997014 50%, #bc9127 100%); }
 
         .invoice-table-wrapper { flex: 1; overflow-y: auto; padding: 12px; min-height: 200px; }
         .pos-table { width: 100%; border-collapse: collapse; font-size: 13px; }
@@ -182,17 +218,17 @@
         .status-right .dev-credit span { color: white; font-weight: 600; }
         .system-pulse { display: flex; align-items: center; gap: 6px; color: var(--pos-success); }
         .pulse-dot { width: 6px; height: 6px; background-color: var(--pos-success); border-radius: 50%; animation: blink 1.5s infinite; }
-        @keyframes blink { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
 
+        /* ==================== 🎨 النوافذ المخصصة (Modals) 🎨 ==================== */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--modal-bg); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
         .modal-overlay.active { opacity: 1; pointer-events: auto; }
         .custom-modal { background: linear-gradient(145deg, #242435, #161622); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; width: 90%; max-width: 400px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         .modal-header { font-size: 16px; font-weight: bold; color: var(--pos-accent); margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        .modal-body { margin-bottom: 20px; }
+        .modal-body { margin-bottom: 20px; color: #eee; }
         .modal-input { width: 100%; padding: 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; color: white; font-size: 15px; box-sizing: border-box; margin-bottom: 15px; }
         
         .modal-actions { display: flex; flex-direction: column; gap: 10px; }
-        .modal-buttons-row { display: flex; justify-content: flex-end; gap: 10px; }
+        .modal-buttons-row { display: flex; justify-content: flex-end; gap: 10px; width: 100%; }
         .modal-btn { padding: 12px 20px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 14px; }
         .modal-btn.save { background: var(--pos-accent); color: #000; }
         .modal-btn.cancel { background: rgba(255,255,255,0.08); color: var(--text-muted); }
@@ -223,18 +259,58 @@
 
         @media (max-width: 768px) {
             body { overflow-y: auto; height: auto; }
-            .pos-container { flex-direction: column; height: auto; overflow: visible; }
-            .items-section { overflow-y: visible; padding: 15px; }
-            .checkout-section { border-right: none; border-top: 1px solid rgba(255, 255, 255, 0.05); height: auto; overflow: visible; }
-            .invoice-table-wrapper { overflow-y: visible; min-height: auto; padding-bottom: 20px; }
-            .status-bar { flex-direction: column; gap: 8px; text-align: center; padding: 15px 20px; }
+            .pos-container { flex-direction: column; height: auto; }
+            .items-section { padding: 15px; }
+            .checkout-section { border-right: none; border-top: 1px solid rgba(255, 255, 255, 0.05); }
+            .invoice-table-wrapper { min-height: auto; padding-bottom: 20px; }
+            .status-bar { flex-direction: column; gap: 8px; text-align: center; }
+        }
+
+        /* صندوق محتوى التفاصيل والورديات القديمة المحدث والملكي */
+        .modal-content {
+            background: linear-gradient(145deg, #1e1e2f, #12121a);
+            border: 2px solid #ffd700;
+            border-radius: 16px;
+            padding: 20px;
+            width: 90%;
+            max-width: 450px;
+            color: #fff;
+            direction: rtl;
+            text-align: right;
+            position: relative;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+        }
+
+        .close-btn { position: absolute; top: 10px; left: 15px; color: #aaa; font-size: 28px; cursor: pointer; transition: color 0.2s; }
+        .close-btn:hover { color: #ff4444; }
+
+        .details-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; background: rgba(255, 255, 255, 0.02); border-radius: 8px; overflow: hidden; }
+        .details-table th { background-color: #2d2d3d; color: #ffd700; padding: 8px; text-align: right; border-bottom: 1px solid #444; }
+        .details-table td { padding: 8px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); color: #e0e0e0; }
+
+        /* كارت الوردية داخل السجل */
+        .shift-card {
+            background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            padding: 14px; 
+            margin-bottom: 12px; 
+            border-radius: 12px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            cursor: pointer; 
+            transition: all 0.25s ease;
+        }
+        .shift-card:hover {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #ffd700;
         }
     </style>
 </head>
 <body>
 
     <div id="toastNotif" class="toast-notification">
-        <i class="fa-solid fa-circle-check"></i> تم نسخ التقرير! افتح الواتساب والصقه الآن.
+        <i class="fa-solid fa-circle-check"></i> تم التحديث بنجاح!
     </div>
 
     <div id="splashScreen">
@@ -258,7 +334,7 @@
     <div class="pos-container">
         <div class="items-section">
             <div>
-                <div class="category-title"><i class="fa-solid fa-arrow-down-long" style="color: var(--pos-success)"></i> إستلام كاش   (+ الكاش)</div>
+                <div class="category-title"><i class="fa-solid fa-arrow-down-long" style="color: var(--pos-success)"></i> إستلاف كاش   (+ الكاش)</div>
                 <div class="quick-grid">
                     <div class="pos-btn cash-in-btn" onclick="openCustomModal('إيراد الوردية', 'cash_in')"><i class="fa-solid fa-store"></i><span>إيراد الوردية</span></div>
                     <div class="pos-btn cash-in-btn" onclick="openCustomModal('تحصيل من تجار', 'cash_in')"><i class="fa-solid fa-wallet"></i><span>تحصيل تجار</span></div>
@@ -309,8 +385,12 @@
                 <button class="num-btn action" onclick="pressNum('0')">0</button>
                 <button class="num-btn action" onclick="pressNum('00')">00</button>
                 <button class="num-btn action" onclick="clearDisplay()"><i class="fa-solid fa-delete-left"></i></button>
-                <button class="num-btn confirm" onclick="submitTransaction()"><i class="fa-solid fa-circle-check"></i> حفظ العملية</button>
-                <button class="num-btn reset-btn" onclick="openReportModal()"><i class="fa-solid fa-power-off"></i> جرد وتصفير الوردية</button>
+                
+                <div class="action-button-container">
+                    <button class="main-action-btn btn-confirm" onclick="submitTransaction()"><i class="fa-solid fa-circle-check"></i> حفظ العملية الحالية</button>
+                    <button class="main-action-btn btn-reset" onclick="openReportModal()"><i class="fa-solid fa-power-off"></i> جرد وتصفير الوردية</button>
+                    <button id="viewHistoryBtn" class="main-action-btn btn-history"><i class="fa-solid fa-folder-open"></i> سجل الورديات السابقة</button>
+                </div>
             </div>
 
             <div class="invoice-table-wrapper">
@@ -325,16 +405,6 @@
                     <tbody id="posLogTable"></tbody>
                 </table>
             </div>
-        </div>
-    </div>
-
-    <div class="status-bar">
-        <div class="status-right">
-            <div class="dev-credit"><i class="fa-solid fa-code"></i> تصميم وتطوير الهيكل: <span>علي حسن علي</span></div>
-        </div>
-        <div class="status-left">
-            <div class="system-pulse"><div class="pulse-dot"></div> الملقم المحلي نشط</div>
-            <div>إصدار النظام: <span>v2.5.0</span></div>
         </div>
     </div>
 
@@ -381,7 +451,7 @@
                     <span id="reportBread" style="color: var(--pos-warning); font-weight: bold;">0 رغيف</span>
                 </div>
                 <div class="report-warning">
-                    <i class="fa-solid fa-triangle-exclamation"></i> تنبيه: سيتم مسح الجدول وتصفير العدادات لبدء وردية جديدة.
+                    <i class="fa-solid fa-triangle-exclamation"></i> تنبيه: سيتم حفظ الحسابات مسبقاً وتصفير العدادات لبدء دورة عمل جديدة.
                 </div>
             </div>
             <div class="modal-actions">
@@ -390,9 +460,63 @@
                 </button>
                 <div class="modal-buttons-row" style="width: 100%;">
                     <button class="modal-btn cancel" style="flex:1" onclick="closeReportModal()">إلغاء</button>
-                    <button class="modal-btn save" style="background: var(--pos-danger); color: white; flex:2" onclick="confirmZeroing()">تأكيد التصفير</button>
+                    <button class="modal-btn save" style="background: var(--pos-success); color: black; flex:2" onclick="showEmployeeModal()">تأكيد وتسمية المسؤول</button>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="employeeModalOverlay">
+        <div class="custom-modal" style="border-color: var(--pos-accent);">
+            <div class="modal-header"><i class="fa-solid fa-user-check"></i> اعتماد اسم كاشير الوردية</div>
+            <div class="modal-body">
+                <label style="font-size:13px; color:var(--text-muted)">برجاء إدخال اسم المسؤول الحالي لقفل الوردية:</label>
+                <input type="text" class="modal-input" id="shiftEmployeeName" value="صالح" style="margin-top:12px; border-color: rgba(229,152,102,0.4)">
+            </div>
+            <div class="modal-actions">
+                <div class="modal-buttons-row">
+                    <button class="modal-btn cancel" onclick="closeEmployeeModal()">إلغاء</button>
+                    <button class="modal-btn save" style="background: var(--pos-accent);" onclick="confirmZeroing()">تأكيد الحساب والتصفير 🚀</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="alertModalOverlay">
+        <div class="custom-modal" id="alertModalBox" style="text-align: center;">
+            <div class="modal-header" id="alertModalHeader" style="justify-content: center; font-size: 18px;"></div>
+            <div class="modal-body" id="alertModalBody" style="font-size: 14px; margin-top: 10px;"></div>
+            <div class="modal-actions" id="alertModalActions"></div>
+        </div>
+    </div>
+
+    <div id="historyModal" style="display: none; position: fixed; z-index: 9999; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px);">
+        <div class="custom-modal" style="max-width: 480px; margin: 8% auto; border: 2px solid #ffd700;">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 10px; margin-bottom: 15px;">
+                <h3 style="margin: 0; color: #ffd700; font-size:16px;"><i class="fa-solid fa-folder-open"></i> سجل الورديات السابقة</h3>
+                <span id="closeHistory" style="color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer;">&times;</span>
+            </div>
+            <div id="historyList" style="max-height: 320px; overflow-y: auto; margin-bottom: 15px; padding-left: 5px;"></div>
+            <button id="clearHistoryBtn" style="width: 100%; background: linear-gradient(90deg, #e74c3c, #c0392b); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;"><i class="fa-solid fa-trash-can"></i> مسح السجل بالكامل</button>
+        </div>
+    </div>
+
+    <div id="detailsModal" style="display: none; position: fixed; z-index: 10005; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.85); backdrop-filter: blur(8px); align-items: center; justify-content: center;">
+         <div class="modal-content" style="max-height: 80vh; overflow-y: auto;">
+             <span class="close-btn" onclick="closeDetailsModal()">&times;</span>
+             <h3 style="color: #ffd700; font-size:16px; margin-top:5px;"><i class="fa-solid fa-receipt"></i> تفاصيل الوردية الكاملة</h3>
+             <hr style="border-color: rgba(255,255,255,0.08); margin: 12px 0;">
+             <div id="modalBody"></div>
+         </div>
+    </div>
+
+    <div class="status-bar">
+        <div class="status-right">
+            <div class="dev-credit"><i class="fa-solid fa-code"></i> تصميم وتطوير الهيكل: <span>علي حسن علي</span></div>
+        </div>
+        <div class="status-left">
+            <div class="system-pulse"><div class="pulse-dot"></div> الملقم المحلي نشط</div>
+            <div>إصدار النظام: <span>v2.5.5</span></div>
         </div>
     </div>
 
@@ -400,28 +524,62 @@
     let totals = { cash: 0, bread: 0 };
     let currentOperation = { category: '', details: '', type: '' };
     let currentValueStr = '0';
+    let currentShiftLogsArray = []; 
 
     window.addEventListener('DOMContentLoaded', () => {
-        // شريط التحميل يبدأ فوراً
         setTimeout(() => {
             const progressBar = document.getElementById('splashProgressBar');
-            if(progressBar) {
-                progressBar.style.width = '100%';
-            }
+            if(progressBar) progressBar.style.width = '100%';
         }, 100);
 
-        // ⏱️ الإخفاء بدقة بعد 3000 مللي ثانية (٣ ثوانٍ)
         setTimeout(() => {
             const splash = document.getElementById('splashScreen');
-            if(splash) {
-                splash.style.opacity = '0';
-                splash.style.visibility = 'hidden';
-            }
+            if(splash) { splash.style.opacity = '0'; splash.style.visibility = 'hidden'; }
         }, 3000); 
         
         loadFromLocalStorage();
     });
 
+    /* ==================== 🛑 إدارة النوافذ المخصصة البديلة لـ برومبت وأليرت 🛑 ==================== */
+    function showCustomAlert(title, message, icon = 'fa-circle-check', color = '#2ecc71') {
+        document.getElementById('alertModalHeader').innerHTML = `<i class="${icon}" style="color:${color}; margin-left:8px;"></i> ${title}`;
+        document.getElementById('alertModalBody').innerText = message;
+        
+        const actionsBox = document.getElementById('alertModalActions');
+        actionsBox.innerHTML = `<button class="modal-btn save" style="background:${color}; color:#000; width:100%" onclick="closeCustomAlert()">حسنًا</button>`;
+        
+        document.getElementById('alertModalOverlay').classList.add('active');
+    }
+
+    function showCustomConfirm(title, message, onConfirm) {
+        document.getElementById('alertModalHeader').innerHTML = `<i class="fa-solid fa-triangle-exclamation" style="color:#e74c3c; margin-left:8px;"></i> ${title}`;
+        document.getElementById('alertModalBody').innerText = message;
+        
+        const actionsBox = document.getElementById('alertModalActions');
+        actionsBox.innerHTML = `
+            <div class="modal-buttons-row">
+                <button class="modal-btn cancel" onclick="closeCustomAlert()">إلغاء</button>
+                <button class="modal-btn save" style="background:#e74c3c; color:white;" id="confirmActionBtn">تأكيد ومسح</button>
+            </div>
+        `;
+        
+        document.getElementById('confirmActionBtn').onclick = () => {
+            onConfirm();
+            closeCustomAlert();
+        };
+        
+        document.getElementById('alertModalOverlay').classList.add('active');
+    }
+
+    function closeCustomAlert() { document.getElementById('alertModalOverlay').classList.remove('active'); }
+
+    function showEmployeeModal() {
+        closeReportModal();
+        document.getElementById('employeeModalOverlay').classList.add('active');
+    }
+    function closeEmployeeModal() { document.getElementById('employeeModalOverlay').classList.remove('active'); }
+
+    /* ==================== عمليات الكاشير الحسابية ==================== */
     function openCustomModal(category, type) {
         currentOperation.category = category;
         currentOperation.type = type;
@@ -458,7 +616,7 @@
     }
 
     function pressNum(num) {
-        if (!currentOperation.type) { alert('برجاء اختيار التصنيف أولاً!'); return; }
+        if (!currentOperation.type) { showCustomAlert('تنبيه', 'برجاء اختيار تصنيف العملية من القوائم أولاً!', 'fa-solid fa-circle-exclamation', '#f1c40f'); return; }
         currentValueStr = (currentValueStr === '0') ? num : currentValueStr + num;
         updateDisplay();
     }
@@ -468,15 +626,22 @@
 
     function submitTransaction() {
         const value = parseFloat(currentValueStr) || 0;
-        if (value <= 0) { alert('أدخل قيمة صحيحة'); return; }
+        if (value <= 0) { showCustomAlert('خطأ في الإدخال', 'يرجى كتابة قيمة أو عدد صحيح أكبر من الصفر.', 'fa-solid fa-circle-xmark', '#e74c3c'); return; }
         
-        let unit = '', badgeClass = '';
-        if (currentOperation.type === 'cash_in') { totals.cash += value; unit = 'ج.م'; badgeClass = 'in'; }
-        else if (currentOperation.type === 'cash_out') { totals.cash -= value; unit = 'ج.م'; badgeClass = 'out'; }
-        else if (currentOperation.type === 'bread_in') { totals.bread += value; unit = 'رغيف'; badgeClass = 'in'; }
-        else if (currentOperation.type === 'bread_out') { totals.bread -= value; unit = 'رغيف'; badgeClass = 'out'; }
+        let unit = '', badgeClass = '', normalizedType = '';
+        if (currentOperation.type === 'cash_in') { totals.cash += value; unit = 'ج.م'; badgeClass = 'in'; normalizedType = 'إستلاف كاش'; }
+        else if (currentOperation.type === 'cash_out') { totals.cash -= value; unit = 'ج.م'; badgeClass = 'out'; normalizedType = 'منصرف كاش'; }
+        else if (currentOperation.type === 'bread_in') { totals.bread += value; unit = 'رغيف'; badgeClass = 'in'; normalizedType = 'وارد عيش'; }
+        else if (currentOperation.type === 'bread_out') { totals.bread -= value; unit = 'رغيف'; badgeClass = 'out'; normalizedType = 'منصرف عيش'; }
 
         updateUI();
+
+        currentShiftLogsArray.push({
+            title: `${currentOperation.category}${currentOperation.details ? ` - ${currentOperation.details}` : ''}`,
+            type: normalizedType,
+            value: `${value} ${unit}`,
+            isIncome: badgeClass === 'in'
+        });
 
         const tableBody = document.getElementById('posLogTable');
         const row = document.createElement('tr');
@@ -488,6 +653,12 @@
         tableBody.insertBefore(row, tableBody.firstChild);
         saveToLocalStorage();
         clearDisplay();
+        
+        // إشعار سريع ناعم
+        const toast = document.getElementById('toastNotif');
+        toast.innerText = "تم حفظ العملية في الوردية بنجاح! ✔️";
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2000);
     }
 
     function openReportModal() {
@@ -523,25 +694,28 @@
         
         try {
             document.execCommand('copy');
-            
             const toast = document.getElementById('toastNotif');
+            toast.innerHTML = `<i class="fa-solid fa-circle-check"></i> تم نسخ التقرير! افتح الواتساب والصقه الآن.`;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3500);
 
-            setTimeout(() => {
-                window.open('https://web.whatsapp.com/', '_blank');
-            }, 800);
-
+            setTimeout(() => { window.open('https://web.whatsapp.com/', '_blank'); }, 800);
         } catch (err) {
-            alert('حدث خطأ أثناء النسخ، يرجى المحاولة مرة أخرى.');
+            showCustomAlert('خطأ', 'فشل نسخ التقرير تلقائياً.', 'fa-solid fa-circle-xmark', '#e74c3c');
         } finally {
             document.body.removeChild(tempTextArea);
         }
     }
 
     function confirmZeroing() {
+        let inputName = document.getElementById('shiftEmployeeName').value.trim();
+        let employeeName = inputName === "" ? "غير محدد" : inputName;
+
+        saveCurrentShiftToHistory(employeeName);
+
         totals.cash = 0;
         totals.bread = 0;
+        currentShiftLogsArray = []; 
         document.getElementById('posLogTable').innerHTML = '';
         document.getElementById('posTarget').innerText = 'اختر تصنيفاً للبدء...';
         currentOperation = { category: '', details: '', type: '' };
@@ -549,26 +723,170 @@
         updateUI();
         saveToLocalStorage();
         clearDisplay();
-        closeReportModal();
-        alert('تم تصفير الوردية بنجاح وبدء دورة جديدة! 🚀');
+        closeEmployeeModal();
+        
+        showCustomAlert('تم قفل الوردية', 'تم تصفير الوردية الحالية وحفظ كافة تفاصيلها وجدول عملياتها في السجل بنجاح! 🚀', 'fa-solid fa-rocket', '#e59866');
     }
 
     function updateUI() {
-        document.getElementById('netCash').innerText = `${totals.cash} ج.م`;
+        document.getElementById('netCash').innerText = `${totals.cash} ج.m`;
         document.getElementById('netBread').innerText = `${totals.bread} رغيف`;
     }
 
     function saveToLocalStorage() {
         localStorage.setItem('generic_bakery_totals', JSON.stringify(totals));
         localStorage.setItem('generic_bakery_logs', document.getElementById('posLogTable').innerHTML);
+        localStorage.setItem('generic_bakery_array_logs', JSON.stringify(currentShiftLogsArray));
     }
 
     function loadFromLocalStorage() {
         const savedTotals = localStorage.getItem('generic_bakery_totals');
         const savedLogs = localStorage.getItem('generic_bakery_logs');
+        const savedArrayLogs = localStorage.getItem('generic_bakery_array_logs');
         if (savedTotals) { totals = JSON.parse(savedTotals); updateUI(); }
-        if (savedLogs) { document.getElementById('posLogTable').innerHTML = savedLogs; }
+        if (savedLogs) document.getElementById('posLogTable').innerHTML = savedLogs;
+        if (savedArrayLogs) currentShiftLogsArray = JSON.parse(savedArrayLogs);
     }
+
+    /* ==================== 📋 إدارة سجل وتفاصيل الورديات السابقة 📋 ==================== */
+    function saveCurrentShiftToHistory(employeeName) {
+        let currentShiftData = {
+            id: Date.now(), 
+            date: new Date().toLocaleDateString('ar-EG'),
+            time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+            savedCash: totals.cash,
+            savedBread: totals.bread,
+            employee: employeeName,
+            detailedLogs: [...currentShiftLogsArray] 
+        };
+
+        let history = JSON.parse(localStorage.getItem('bakery_shifts_history')) || [];
+        history.unshift(currentShiftData);
+        localStorage.setItem('bakery_shifts_history', JSON.stringify(history));
+    }
+
+    function displayHistory() {
+        let history = JSON.parse(localStorage.getItem('bakery_shifts_history')) || [];
+        let historyList = document.getElementById('historyList');
+        if(!historyList) return;
+        
+        historyList.innerHTML = ''; 
+
+        if (history.length === 0) {
+            historyList.innerHTML = '<p style="text-align:center; color:#888; padding: 20px;">لا توجد ورديات محفوظة في السجل حالياً.</p>';
+            return;
+        }
+
+        history.forEach(shift => {
+            let shiftCard = document.createElement('div');
+            shiftCard.className = "shift-card";
+            
+            shiftCard.onclick = (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.classList.contains('del-btn-icon')) return; 
+                showShiftDetails({
+                    date: `${shift.date} (${shift.time})`,
+                    cash: shift.savedCash,
+                    bread: shift.savedBread,
+                    employee: shift.employee || "غير محدد",
+                    detailedLogs: shift.detailedLogs || [] 
+                });
+            };
+
+            shiftCard.innerHTML = `
+                <div>
+                    <strong style="color:#e59866;"><i class="fa-solid fa-calendar-day"></i> وردية: ${shift.date}</strong> <span style="font-size:11px; color:#aaa;">(${shift.time})</span>
+                    <div style="margin-top:6px; color:#ddd; font-size:13px;">الدرج: <span style="color:#2ecc71; font-weight:bold;">${shift.savedCash} ج.م</span> | المتبقي: <span style="color:#f1c40f; font-weight:bold;">${shift.savedBread} رغيف</span></div>
+                    <div style="font-size:11px; color:var(--text-muted); margin-top:4px;"><i class="fa-solid fa-user-tie" style="font-size:10px;"></i> المسؤول: <span style="color:#fff;">${shift.employee || "غير محدد"}</span></div>
+                </div>
+                <button class="del-btn-icon" onclick="deleteShiftFromHistory(${shift.id})" style="background:none; border:none; color:#e74c3c; cursor:pointer; font-size:16px; padding: 5px; transition:transform 0.2s;"><i class="fa-solid fa-trash-can del-btn-icon"></i></button>
+            `;
+            historyList.appendChild(shiftCard);
+        });
+    }
+
+    function deleteShiftFromHistory(id) {
+        showCustomConfirm('حذف وردية', 'هل أنت متأكد تماماً من حذف هذه الوردية نهائياً من السجل التاريخي؟', () => {
+            let history = JSON.parse(localStorage.getItem('bakery_shifts_history')) || [];
+            history = history.filter(shift => shift.id !== id);
+            localStorage.setItem('bakery_shifts_history', JSON.stringify(history));
+            displayHistory(); 
+        });
+    }
+
+    function showShiftDetails(shiftData) {
+        const modal = document.getElementById('detailsModal');
+        const modalBody = document.getElementById('modalBody');
+        
+        let rowsHtml = '';
+        if (shiftData.detailedLogs && shiftData.detailedLogs.length > 0) {
+            shiftData.detailedLogs.forEach(log => {
+                let valColor = log.isIncome ? '#2ecc71' : '#e74c3c';
+                rowsHtml += `
+                    <tr>
+                        <td><strong>${log.title}</strong></td>
+                        <td>${log.type}</td>
+                        <td style="color:${valColor}; font-weight:bold;">${log.value}</td>
+                    </tr>
+                `;
+            });
+        } else {
+            rowsHtml = `<tr><td colspan="3" style="text-align:center; color:#888; padding:15px;">لم يتم تسجيل عمليات فردية دقيقة خلال هذه الوردية.</td></tr>`;
+        }
+
+        modalBody.innerHTML = `
+            <div style="line-height: 1.8; font-size: 13px; padding: 5px 0; background:rgba(0,0,0,0.15); padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,0.05)">
+                <p style="margin:4px 0;"><strong>📅 التاريخ والوقت:</strong> <span style="color: #bbb;">${shiftData.date}</span></p>
+                <p style="margin:4px 0;"><strong>💵 المجموع بالدرج:</strong> <span style="color: #2ecc71; font-weight:bold;">${shiftData.cash} ج.م</span></p>
+                <p style="margin:4px 0;"><strong>🍞 الخبز المتبقي:</strong> <span style="color: #f1c40f; font-weight:bold;">${shiftData.bread} رغيف</span></p>
+                <p style="margin:4px 0;"><strong>👤 كاشير الوردية:</strong> <span style="color: #e59866; font-weight:bold;">${shiftData.employee}</span></p>
+            </div>
+            
+            <h4 style="margin: 18px 0 8px 0; color: #ffd700; font-size: 13px;"><i class="fa-solid fa-list-check"></i> تفاصيل وجدول العمليات المنفذة:</h4>
+            <table class="details-table">
+                <thead>
+                    <tr>
+                        <th>العملية / البيان</th>
+                        <th>التصنيف</th>
+                        <th>القيمة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+        `;
+        modal.style.display = 'flex';
+    }
+
+    function closeDetailsModal() { document.getElementById('detailsModal').style.display = 'none'; }
+
+    window.addEventListener('load', () => {
+        const viewHistoryBtn = document.getElementById('viewHistoryBtn');
+        const closeHistory = document.getElementById('closeHistory');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+
+        if(viewHistoryBtn) {
+            viewHistoryBtn.addEventListener('click', () => {
+                document.getElementById('historyModal').style.display = 'block';
+                displayHistory();
+            });
+        }
+
+        if(closeHistory) {
+            closeHistory.addEventListener('click', () => {
+                document.getElementById('historyModal').style.display = 'none';
+            });
+        }
+
+        if(clearHistoryBtn) {
+            clearHistoryBtn.addEventListener('click', () => {
+                showCustomConfirm('تحذير نهائي', 'هل أنت متأكد تماماً من مسح سجل الورديات بالكامل؟ لا يمكن استعادة البيانات بعد ذلك.', () => {
+                    localStorage.removeItem('bakery_shifts_history');
+                    displayHistory();
+                });
+            });
+        }
+    });
 </script>
 </body>
-</html>
+                    </html>
